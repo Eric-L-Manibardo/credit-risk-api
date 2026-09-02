@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment variables
+.env
+.env.*
+
+# Data (raw data not tracked, only seeds/scripts)
+data/raw/*.csv
+data/raw/*.xlsx
+data/*.db
+
+# Model artifacts (too large for git)
+models/*.cbm
+models/*.pkl
+models/*.joblib
+
+# SHAP plots cache
+*.png
+!docs_learning/*.png
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# mypy
+.mypy_cache/
+
+# ruff
+.ruff_cache/
+
+# pytest
+.pytest_cache/
+
+# Docker
+docker/.env
+
+# Personal files (not part of the service)
+CV/
+docs_learning/
+study_pdf/
