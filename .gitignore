@@ -25,6 +25,7 @@ Thumbs.db
 
 # Jupyter
 .ipynb_checkpoints/
+notebooks/*.ipynb
 
 # Environment variables
 .env
@@ -40,9 +41,15 @@ models/*.cbm
 models/*.pkl
 models/*.joblib
 
+# CatBoost training logs
+catboost_info/
+
 # SHAP plots cache
 *.png
 !docs_learning/*.png
+
+# Evaluation output (regenerate with make evaluate)
+reports/
 
 # Coverage
 htmlcov/

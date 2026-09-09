@@ -36,6 +36,7 @@ dev = [
     "ruff>=0.5",
     "mypy>=1.10",
     "pre-commit>=3.7",
+    "ipykernel>=6.29",
 ]
 
 [tool.setuptools.packages.find]
@@ -58,7 +59,8 @@ select = [
 ]
 
 [tool.mypy]
-python_version = "3.11"
+# No python_version pin: numpy's stubs use PEP 695 syntax, so mypy must target
+# the interpreter actually in use, not the floor of requires-python.
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
