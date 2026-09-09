@@ -26,7 +26,9 @@ with a deterministic `create_features` used for training and scoring.
 
 A CatBoost baseline trains against a sealed test set with 5-fold stratified
 cross-validation, and `make evaluate` reports ranking, calibration, and
-cost-per-client at every decision threshold.
+cost-per-client at every decision threshold. Results and the decisions they
+drive are written up in
+[docs/baseline_evaluation.md](docs/baseline_evaluation.md).
 
 Persisted model artifacts, hyperparameter search, SHAP, the HTTP API, and
 Docker/CI are next. See [ROADMAP.md](ROADMAP.md).

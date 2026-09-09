@@ -47,6 +47,8 @@ catboost_info/
 # SHAP plots cache
 *.png
 !docs_learning/*.png
+# Curated figures published with the evaluation notes
+!docs/figures/*.png
 
 # Evaluation output (regenerate with make evaluate)
 reports/
