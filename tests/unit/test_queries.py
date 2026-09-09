@@ -2,24 +2,10 @@
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 from sqlalchemy import Engine
 
-from src.data.ingest import ingest_csv
 from src.data.queries import count_by_credit_class, fetch_loan_by_id, fetch_loans
-from tests.unit.conftest import VALID_LOAN, write_source_csv
-
-
-@pytest.fixture
-def seeded_engine(engine: Engine, tmp_path: Path) -> Engine:
-    bad = dict(VALID_LOAN)
-    bad["credit_class"] = "bad"
-    bad["purpose"] = "education"
-    csv_path = write_source_csv(tmp_path / "loans.csv", [dict(VALID_LOAN), bad])
-    ingest_csv(csv_path=csv_path, engine=engine)
-    return engine
 
 
 def test_fetch_loans_returns_all_rows(seeded_engine: Engine) -> None:

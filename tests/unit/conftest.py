@@ -13,6 +13,8 @@ import pytest
 from sqlalchemy import Engine, create_engine
 from sqlalchemy.pool import StaticPool
 
+from src.data.ingest import ingest_csv
+
 VALID_LOAN: dict[str, object] = {
     "checking_status": "no checking",
     "duration": 12,
@@ -68,3 +70,14 @@ def write_source_csv(path: Path, rows: list[dict[str, object]]) -> Path:
         records.append(record)
     pd.DataFrame(records).to_csv(path, index=False)
     return path
+
+
+@pytest.fixture
+def seeded_engine(engine: Engine, tmp_path: Path) -> Engine:
+    """Two-row loans table on the in-memory engine (good + bad)."""
+    bad = dict(VALID_LOAN)
+    bad["credit_class"] = "bad"
+    bad["purpose"] = "education"
+    csv_path = write_source_csv(tmp_path / "loans.csv", [dict(VALID_LOAN), bad])
+    ingest_csv(csv_path=csv_path, engine=engine)
+    return engine
