@@ -20,9 +20,16 @@ graph LR
 
 ## Status
 
-The data layer is in place: German Credit is ingested into SQLite, accessed only through SQLAlchemy, validated, and covered by unit tests.
+The data layer and feature pipeline are in place: German Credit is ingested
+into SQLite, accessed only through SQLAlchemy, validated, and transformed
+with a deterministic `create_features` used for training and scoring.
 
-Feature engineering, model training, SHAP, the HTTP API, and Docker/CI are next. See [ROADMAP.md](ROADMAP.md).
+A CatBoost baseline trains against a sealed test set with 5-fold stratified
+cross-validation, and `make evaluate` reports ranking, calibration, and
+cost-per-client at every decision threshold.
+
+Persisted model artifacts, hyperparameter search, SHAP, the HTTP API, and
+Docker/CI are next. See [ROADMAP.md](ROADMAP.md).
 
 ## Tech Stack
 
@@ -51,6 +58,8 @@ cd credit-risk-api
 make dev          # .venv + dependencies
 make ingest       # download extract → SQLite
 make validate     # domain checks on the loans table
+make train        # CatBoost baseline: CV and sealed-test metrics
+make evaluate     # classification report + figures in reports/figures/
 make test         # unit tests (in-memory SQLite)
 make check        # lint + typecheck + tests
 ```
@@ -72,8 +81,8 @@ credit-risk-api/
 │   └── raw/
 ├── src/
 │   ├── data/               # Download, ingest, SQL access, validation
-│   ├── features/           # Feature pipeline (upcoming)
-│   ├── model/              # Training and registry (upcoming)
+│   ├── features/           # Deterministic feature transform
+│   ├── model/              # Split protocol, metrics, training, evaluation
 │   ├── explainability/     # SHAP (upcoming)
 │   └── api/                # FastAPI (upcoming)
 ├── tests/

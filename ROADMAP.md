@@ -7,8 +7,8 @@ depend on a working data layer.
 |-------|--------|--------|
 | [Setup](#setup) | Project structure, dependencies, tooling | Done |
 | [Data layer](#data-layer) | SQL + Pandas | Done |
-| [Feature engineering](#feature-engineering) | Reproducible feature pipeline | Next |
-| [Training](#model-training--evaluation) | CatBoost, metrics, model registry | Pending |
+| [Feature engineering](#feature-engineering) | Reproducible feature pipeline | Done |
+| [Training](#model-training--evaluation) | CatBoost, metrics, model registry | In progress |
 | [Explainability](#explainability-shap) | Global and per-prediction SHAP | Pending |
 | [API](#fastapi-service) | REST scoring and explanations | Pending |
 | [Release](#docker-cicd--readme) | Containers, CI, production docs | Pending |
