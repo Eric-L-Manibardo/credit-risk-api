@@ -1,7 +1,8 @@
-"""Baseline CatBoost: sealed test + 5-fold CV, then refit on the 85% pool."""
+"""CatBoost fit protocol: sealed test + 5-fold CV, then refit on the 85% pool."""
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from typing import Any
 
 import numpy as np
@@ -10,9 +11,22 @@ from catboost import CatBoostClassifier
 
 from src.features.engineering import CATEGORICAL_FEATURES
 from src.features.pipeline import load_featured_loans
-from src.model.config import CATBOOST_PARAMS
+from src.model.config import CATBOOST_PARAMS, RANDOM_STATE
 from src.model.metrics import classification_metrics, summarize_cv
 from src.model.split import cv_folds, frame_to_xy, sealed_test_split
+
+Params = dict[str, Any]
+
+
+def merge_params(overrides: Mapping[str, Any] | None = None) -> Params:
+    """CATBOOST_PARAMS plus overrides. Seed, loss and silence stay fixed."""
+    merged: Params = dict(CATBOOST_PARAMS)
+    if overrides:
+        merged.update({key: value for key, value in overrides.items() if key != "verbose"})
+    merged["verbose"] = False
+    merged["random_seed"] = RANDOM_STATE
+    merged["loss_function"] = "Logloss"
+    return merged
 
 
 def _catboost_frame(x: pd.DataFrame) -> pd.DataFrame:
@@ -22,33 +36,46 @@ def _catboost_frame(x: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def _make_model() -> CatBoostClassifier:
-    return CatBoostClassifier(**CATBOOST_PARAMS)
+def _make_model(params: Mapping[str, Any] | None = None) -> CatBoostClassifier:
+    return CatBoostClassifier(**merge_params(params))
 
 
-def train_baseline(df: pd.DataFrame) -> dict[str, Any]:
-    """Run the M3 paso 2 protocol. Does not write .cbm (paso 3)."""
-    x, y, ids = frame_to_xy(df)
-    x_rest, x_test, y_rest, y_test, ids_rest, ids_test = sealed_test_split(x, y, ids)
-    x_rest_cb = _catboost_frame(x_rest)
-    x_test_cb = _catboost_frame(x_test)
-
+def cross_validate(
+    x: pd.DataFrame,
+    y: pd.Series,
+    params: Mapping[str, Any] | None = None,
+) -> tuple[list[dict[str, float]], np.ndarray]:
+    """5-fold on one pool. Returns per-fold metrics and out-of-fold P(bad)."""
+    x_cb = _catboost_frame(x)
     fold_metrics: list[dict[str, float]] = []
-    # Out-of-fold: every row of the 85% pool scored by a model that did not see it.
-    oof_proba = np.zeros(len(y_rest), dtype=float)
-    splitter = cv_folds(y_rest)
-    for train_idx, val_idx in splitter.split(x_rest_cb, y_rest):
-        model = _make_model()
+    oof_proba = np.zeros(len(y), dtype=float)
+    splitter = cv_folds(y)
+    for train_idx, val_idx in splitter.split(x_cb, y):
+        model = _make_model(params)
         model.fit(
-            x_rest_cb.iloc[train_idx],
-            y_rest.iloc[train_idx],
+            x_cb.iloc[train_idx],
+            y.iloc[train_idx],
             cat_features=list(CATEGORICAL_FEATURES),
         )
-        proba = model.predict_proba(x_rest_cb.iloc[val_idx])[:, 1]
+        proba = model.predict_proba(x_cb.iloc[val_idx])[:, 1]
         oof_proba[val_idx] = proba
-        fold_metrics.append(classification_metrics(y_rest.iloc[val_idx], proba))
+        fold_metrics.append(classification_metrics(y.iloc[val_idx], proba))
+    return fold_metrics, oof_proba
 
-    final_model = _make_model()
+
+def train_baseline(
+    df: pd.DataFrame,
+    params: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Split, CV, refit. Does not write files; the CLI does."""
+    used = merge_params(params)
+    x, y, ids = frame_to_xy(df)
+    x_rest, x_test, y_rest, y_test, ids_rest, ids_test = sealed_test_split(x, y, ids)
+    fold_metrics, oof_proba = cross_validate(x_rest, y_rest, used)
+
+    x_rest_cb = _catboost_frame(x_rest)
+    x_test_cb = _catboost_frame(x_test)
+    final_model = _make_model(used)
     final_model.fit(x_rest_cb, y_rest, cat_features=list(CATEGORICAL_FEATURES))
     test_proba = final_model.predict_proba(x_test_cb)[:, 1]
     test_metrics = classification_metrics(y_test, test_proba)
@@ -65,6 +92,8 @@ def train_baseline(df: pd.DataFrame) -> dict[str, Any]:
         "oof_proba": oof_proba,
         "y_test": y_test.to_numpy(),
         "test_proba": test_proba,
+        "params": used,
+        "version": "baseline-v1",
     }
 
 
@@ -87,10 +116,19 @@ def _format_test(test: dict[str, float]) -> str:
 
 
 if __name__ == "__main__":
+    from src.model.config import MODEL_PATH
+    from src.model.registry import save_model
+
     featured = load_featured_loans()
     result = train_baseline(featured)
+
     print(f"n_rest={result['n_rest']} n_test={result['n_test']}")
     print("CV (5-fold, mean ± std):")
     print(_format_cv(result["cv"]))
     print("Test (sealed, 15%):")
     print(_format_test(result["test"]))
+
+    registry_path = save_model(result["model"], result=result)
+    print("\nArtifacts written:")
+    print(f"  model     {MODEL_PATH}")
+    print(f"  registry  {registry_path}")
