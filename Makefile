@@ -1,4 +1,4 @@
-.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate study-pdf study-epub study
+.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate tune study-pdf study-epub study
 
 install:
 	uv sync --no-dev
@@ -33,6 +33,9 @@ validate:
 
 train:
 	uv run python -m src.model.train
+
+tune:
+	uv run python -m src.model.tune
 
 evaluate:
 	uv run python -m src.model.evaluate

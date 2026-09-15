@@ -1,0 +1,112 @@
+{
+  "version": "tuned-v1",
+  "trained_at": "2026-09-10T15:14:15+00:00",
+  "model_path": "baseline.cbm",
+  "features": [
+    "checking_status",
+    "duration",
+    "credit_history",
+    "purpose",
+    "credit_amount",
+    "savings_status",
+    "employment",
+    "installment_commitment",
+    "personal_status",
+    "other_parties",
+    "residence_since",
+    "property_magnitude",
+    "age",
+    "other_payment_plans",
+    "housing",
+    "existing_credits",
+    "job",
+    "num_dependents",
+    "own_telephone",
+    "foreign_worker",
+    "credit_per_month",
+    "log_credit_amount",
+    "age_bin"
+  ],
+  "cat_features": [
+    "checking_status",
+    "credit_history",
+    "purpose",
+    "savings_status",
+    "employment",
+    "personal_status",
+    "other_parties",
+    "property_magnitude",
+    "other_payment_plans",
+    "housing",
+    "job",
+    "own_telephone",
+    "foreign_worker",
+    "age_bin"
+  ],
+  "n_train": 850,
+  "n_test": 150,
+  "cv_metrics": {
+    "roc_auc": {
+      "mean": 0.7915636842972483,
+      "std": 0.021169167677077463
+    },
+    "pr_auc": {
+      "mean": 0.6330919928901199,
+      "std": 0.06452652942095428
+    },
+    "brier": {
+      "mean": 0.18404163395810041,
+      "std": 0.010057943665591047
+    },
+    "precision_bad": {
+      "mean": 0.5217559979239814,
+      "std": 0.03334108491090379
+    },
+    "recall_bad": {
+      "mean": 0.7411764705882353,
+      "std": 0.10226199851298272
+    },
+    "f1_bad": {
+      "mean": 0.6083676301352176,
+      "std": 0.028607004860046536
+    },
+    "cost_5fn_1fp": {
+      "mean": 0.5952941176470589,
+      "std": 0.11148571991042011
+    }
+  },
+  "test_metrics": {
+    "roc_auc": 0.7737566137566138,
+    "pr_auc": 0.6741676188873811,
+    "brier": 0.19071778851443816,
+    "precision_bad": 0.5,
+    "recall_bad": 0.6888888888888889,
+    "f1_bad": 0.5794392523364486,
+    "cost_5fn_1fp": 0.6733333333333333
+  },
+  "threshold": 0.5,
+  "cost_ratio": {
+    "fn": 5,
+    "fp": 1
+  },
+  "catboost_params": {
+    "loss_function": "Logloss",
+    "iterations": 350,
+    "depth": 4,
+    "learning_rate": 0.02435000636897718,
+    "auto_class_weights": "Balanced",
+    "random_seed": 42,
+    "l2_leaf_reg": 2.4974529191110557
+  },
+  "tuning": {
+    "n_trials": 20,
+    "objective": "cv_mean_pr_auc",
+    "best_value": 0.6330919928901199,
+    "best_params": {
+      "depth": 4,
+      "learning_rate": 0.02435000636897718,
+      "iterations": 350,
+      "l2_leaf_reg": 2.4974529191110557
+    }
+  }
+}
