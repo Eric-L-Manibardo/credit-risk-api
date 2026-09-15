@@ -124,9 +124,8 @@ rejected good customer. No credit committee would sign that.
    scored on Brier and the reliability curve rather than AUC. If the
    calibrated optimum drifts toward 0.167 as expected, that confirms the
    diagnosis.
-3. **Tune on PR-AUC, inside the CV folds.** Few Optuna trials: with 1000
-   rows an extensive search mostly fits the folds. The sealed test stays
-   closed during the search.
+3. **Tune on PR-AUC, inside the CV folds.** Done: 20 trials, winner in
+   `registry.json`. The sealed test stayed closed during the search.
 4. **Two thresholds instead of one.** Given the 0.3–0.6 overlap, automating
    the extremes and routing the grey band to manual review is a better
    product than pretending a single frontier exists. Capacity then sets
@@ -137,6 +136,8 @@ rejected good customer. No credit committee would sign that.
 
 ## Status
 
-`make train` prints CV and sealed-test metrics but does not yet write a
-`.cbm`; persisting the model plus a JSON registry is the next commit.
+`make train` writes the baseline; `make tune` searches 20 Optuna trials on
+CV PR-AUC with the sealed test closed and persists `tuned-v1`. The figures
+in this file are the baseline read. What the search changed, including
+Optuna's history: [tuned-v1_evaluation.md](tuned-v1_evaluation.md).
 SHAP, the HTTP API, and Docker/CI follow. See [ROADMAP.md](../ROADMAP.md).

@@ -8,7 +8,7 @@ depend on a working data layer.
 | [Setup](#setup) | Project structure, dependencies, tooling | Done |
 | [Data layer](#data-layer) | SQL + Pandas | Done |
 | [Feature engineering](#feature-engineering) | Reproducible feature pipeline | Done |
-| [Training](#model-training--evaluation) | CatBoost, metrics, model registry | In progress |
+| [Training](#model-training--evaluation) | CatBoost, metrics, model registry | Done |
 | [Explainability](#explainability-shap) | Global and per-prediction SHAP | Pending |
 | [API](#fastapi-service) | REST scoring and explanations | Pending |
 | [Release](#docker-cicd--readme) | Containers, CI, production docs | Pending |
@@ -60,6 +60,10 @@ tuning, and persisted artifacts.
 
 **Deliverable:** Trained model, recorded metrics (AUC-ROC, precision-recall,
 calibration), `.cbm` serialization, JSON model registry.
+
+Baseline artifacts are in `models/` (`make train`). Hyperparameter search
+is `make tune`: Optuna on CV PR-AUC, sealed test closed, winner persisted
+as `tuned-v1`.
 
 ---
 
