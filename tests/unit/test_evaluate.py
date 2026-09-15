@@ -7,7 +7,7 @@ from pathlib import Path
 import numpy as np
 from matplotlib.figure import Figure
 
-from src.model.evaluate import build_figures, report_text, save_report
+from src.model.evaluate import _file_label, build_figures, report_text, save_report
 
 
 def _synthetic(n: int = 200) -> tuple[np.ndarray, np.ndarray]:
@@ -46,3 +46,8 @@ def test_save_report_writes_pngs_and_txt(tmp_path: Path) -> None:
     assert all(path.exists() and path.stat().st_size > 0 for path in written)
     assert sum(path.suffix == ".png" for path in written) == 5
     assert tmp_path / "oof_classification_report.txt" in written
+
+
+def test_file_label_prefix() -> None:
+    assert _file_label("oof", "") == "oof"
+    assert _file_label("oof", "tuned") == "tuned_oof"

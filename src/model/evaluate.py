@@ -1,8 +1,11 @@
-"""Evaluation figures and classification report for the baseline (M3 paso 2.5).
+"""Evaluation figures and classification report.
 
-Reads no artifact: it re-runs the training protocol and plots the probabilities
-it produced. Two evaluation sets are available, and they answer different
-questions:
+Re-runs the training protocol with the hyperparameters in
+``models/registry.json`` (or ``CATBOOST_PARAMS`` if the registry is missing).
+It does not load the ``.cbm``: out-of-fold curves need per-fold scores, and
+the binary only stores the final 85% fit.
+
+Two evaluation sets are available, and they answer different questions:
 
 * ``oof``  — out-of-fold scores over the whole 85% pool (~850 rows). Every row
   is scored by a fold model that did not train on it, so curves are far more
@@ -250,7 +253,9 @@ def save_report(
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Baseline evaluation figures (M3 paso 2.5).")
+    parser = argparse.ArgumentParser(
+        description="Evaluation figures for the model in models/registry.json."
+    )
     parser.add_argument(
         "--split",
         choices=(*SPLIT_LABELS, "both"),
@@ -259,12 +264,34 @@ def _parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--threshold", type=float, default=DECISION_THRESHOLD)
     parser.add_argument("--outdir", type=Path, default=FIGURES_DIR)
+    parser.add_argument(
+        "--prefix",
+        default="",
+        help="Filename prefix, e.g. tuned → tuned_oof_roc_pr.png. Empty keeps oof_/test_.",
+    )
     return parser.parse_args()
+
+
+def _file_label(split_label: str, prefix: str) -> str:
+    return f"{prefix}_{split_label}" if prefix else split_label
 
 
 if __name__ == "__main__":
     args = _parse_args()
-    result = train_baseline(load_featured_loans())
+    from src.model.config import REGISTRY_PATH
+    from src.model.registry import load_registry
+
+    params = None
+    version = "defaults (CATBOOST_PARAMS)"
+    if REGISTRY_PATH.exists():
+        registry = load_registry()
+        params = registry.get("catboost_params")
+        version = str(registry.get("version", "unknown"))
+        print(f"Evaluating {version} from {REGISTRY_PATH}")
+    else:
+        print(f"No {REGISTRY_PATH}; evaluating CATBOOST_PARAMS defaults")
+
+    result = train_baseline(load_featured_loans(), params=params)
     evaluation_sets = {
         "oof": (result["y_rest"], result["oof_proba"]),
         "test": (result["y_test"], result["test_proba"]),
@@ -273,12 +300,13 @@ if __name__ == "__main__":
 
     for split_label in labels:
         y_split, proba_split = evaluation_sets[split_label]
-        print(f"\n=== {split_label} (n={len(y_split)}, bad={int(np.sum(y_split))}) ===")
+        file_label = _file_label(split_label, args.prefix)
+        print(f"\n=== {version} / {split_label} (n={len(y_split)}, bad={int(np.sum(y_split))}) ===")
         print(report_text(y_split, proba_split, threshold=args.threshold))
         for written_path in save_report(
             y_split,
             proba_split,
-            label=split_label,
+            label=file_label,
             outdir=args.outdir,
             threshold=args.threshold,
         ):
