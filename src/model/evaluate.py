@@ -38,7 +38,7 @@ from src.model.train import train_baseline
 
 matplotlib.use("Agg")  # No display under WSL or CI: figures go straight to PNG.
 
-FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures"
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures" / "evaluation"
 CLASS_NAMES = ("good", "bad")
 SPLIT_LABELS = ("oof", "test")
 

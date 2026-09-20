@@ -40,6 +40,17 @@ CATEGORICAL_FEATURES = (
 )
 
 
+def as_catboost_frame(x: pd.DataFrame) -> pd.DataFrame:
+    """Cast categorical columns to Python str. CatBoost (and SHAP) need that."""
+    missing = [col for col in CATEGORICAL_FEATURES if col not in x.columns]
+    if missing:
+        raise ValueError(f"as_catboost_frame missing columns: {missing}")
+    out = x.copy()
+    for col in CATEGORICAL_FEATURES:
+        out[col] = out[col].astype(str)
+    return out
+
+
 def create_features(df: pd.DataFrame) -> pd.DataFrame:
     """Return a copy of ``df`` with derived columns. Does not drop id or target."""
     missing = [col for col in REQUIRED_COLUMNS if col not in df.columns]

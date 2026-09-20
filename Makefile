@@ -1,4 +1,4 @@
-.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate tune study-pdf study-epub study
+.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate tune explain study-pdf study-epub study
 
 install:
 	uv sync --no-dev
@@ -39,6 +39,9 @@ tune:
 
 evaluate:
 	uv run python -m src.model.evaluate
+
+explain:
+	uv run python -m src.explainability.explain
 
 run:
 	uv run uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000

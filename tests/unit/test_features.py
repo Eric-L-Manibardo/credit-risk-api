@@ -6,7 +6,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.features.engineering import DERIVED_COLUMNS, create_features
+from src.features.engineering import (
+    CATEGORICAL_FEATURES,
+    DERIVED_COLUMNS,
+    as_catboost_frame,
+    create_features,
+)
 from tests.unit.conftest import VALID_LOAN
 
 AGE_CASES = (
@@ -76,3 +81,15 @@ def test_missing_column_raises() -> None:
     raw = _loan_frame().drop(columns=["duration"])
     with pytest.raises(ValueError, match="missing columns"):
         create_features(raw)
+
+
+def test_as_catboost_frame_casts_categoricals_to_python_str() -> None:
+    out = as_catboost_frame(create_features(_loan_frame()))
+    for col in CATEGORICAL_FEATURES:
+        assert out[col].map(type).eq(str).all()
+
+
+def test_as_catboost_frame_missing_column_raises() -> None:
+    featured = create_features(_loan_frame()).drop(columns=["age_bin"])
+    with pytest.raises(ValueError, match="missing columns"):
+        as_catboost_frame(featured)
