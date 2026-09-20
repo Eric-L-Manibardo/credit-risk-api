@@ -1,7 +1,9 @@
 """Single path: SQL → validate → features.
 
-Training and the API call these helpers. They do not read the CSV or
-duplicate validate / create_features.
+Training and evaluation call these helpers. They do not read the CSV or
+duplicate validate / create_features. The API scores a request body with
+``create_features`` directly: ``prepare_features`` requires
+``credit_class``, which a live application does not have.
 """
 
 from __future__ import annotations

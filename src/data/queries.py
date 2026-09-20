@@ -1,7 +1,8 @@
 """Read loans from SQLite via SQLAlchemy Core.
 
-Training, validation, and the API import these functions. They never
-read the CSV.
+Training, validation, and evaluation import these functions. They never
+read the CSV. Scoring does not: the API receives the application in the
+request body.
 """
 
 from __future__ import annotations

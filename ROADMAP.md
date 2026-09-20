@@ -9,8 +9,8 @@ depend on a working data layer.
 | [Data layer](#data-layer) | SQL + Pandas | Done |
 | [Feature engineering](#feature-engineering) | Reproducible feature pipeline | Done |
 | [Training](#model-training--evaluation) | CatBoost, metrics, model registry | Done |
-| [Explainability](#explainability-shap) | Global and per-prediction SHAP | Pending |
-| [API](#fastapi-service) | REST scoring and explanations | Pending |
+| [Explainability](#explainability-shap) | Global and per-prediction SHAP | Done |
+| [API](#fastapi-service) | REST scoring and explanations | Done |
 | [Release](#docker-cicd--readme) | Containers, CI, production docs | Pending |
 | [Domain shift](#optional-cross-country--domain-shift) | Second country / schema | Optional |
 | [Related service](#optional-related-service) | Monitoring, batch, or policy rules | Optional |
@@ -61,9 +61,9 @@ tuning, and persisted artifacts.
 **Deliverable:** Trained model, recorded metrics (AUC-ROC, precision-recall,
 calibration), `.cbm` serialization, JSON model registry.
 
-Baseline artifacts are in `models/` (`make train`). Hyperparameter search
-is `make tune`: Optuna on CV PR-AUC, sealed test closed, winner persisted
-as `tuned-v1`.
+Baseline artifacts are in `models/` (`make train` → `baseline-v1.cbm`).
+Hyperparameter search is `make tune`: Optuna on CV PR-AUC, sealed test
+closed, winner persisted as `tuned-v1.cbm`.
 
 ---
 
@@ -73,6 +73,12 @@ as `tuned-v1`.
 
 **Deliverable:** SHAP module used by the API. Required for credit decisions.
 
+CatBoost categorical splits force TreeExplainer in `tree_path_dependent`
+mode, so SHAP is in **log-odds**, not probability. `make explain` ranks features on a 200-row sample of the 85 % rest pool
+(sealed test stays closed) and writes a global bar plus two local
+waterfalls. Notes: [docs/shap_explainability.md](docs/shap_explainability.md).
+The per-row dict is the payload `POST /predict/explain` returns.
+
 ---
 
 ## FastAPI service
@@ -80,6 +86,10 @@ as `tuned-v1`.
 **Goal:** Serve the model over REST.
 
 **Deliverable:** Working API with integration tests.
+
+The registered artifact loads once at startup. `POST /predict` scores
+one application at the registry threshold. `POST /predict/explain`
+returns the same score plus a local SHAP breakdown in log-odds.
 
 - `POST /predict`
 - `POST /predict/explain`

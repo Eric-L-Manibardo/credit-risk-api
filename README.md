@@ -25,18 +25,21 @@ into SQLite, accessed only through SQLAlchemy, validated, and transformed
 with a deterministic `create_features` used for training and scoring.
 
 A CatBoost baseline trains against a sealed test set with 5-fold stratified
-cross-validation. `make train` writes `models/baseline.cbm` (gitignored) and
-`models/registry.json` (committed: metrics, features, operating point).
+cross-validation. `make train` writes `models/baseline-v1.cbm` (gitignored)
+and `models/registry.json` (committed: metrics, features, operating point).
 `make tune` searches hyperparameters on CV PR-AUC with the test set closed,
-then persists the winner. `make evaluate` reports ranking, calibration, and
-cost-per-client at every decision threshold.
+then persists the winner as `models/tuned-v1.cbm`. `make evaluate` reports
+ranking, calibration, and cost-per-client at every decision threshold.
 
 How the baseline behaves:
 [docs/baseline_evaluation.md](docs/baseline_evaluation.md).
 What the Optuna search changed:
 [docs/tuned-v1_evaluation.md](docs/tuned-v1_evaluation.md).
+How the model attributes a score:
+[docs/shap_explainability.md](docs/shap_explainability.md).
 
-SHAP, the HTTP API, and Docker/CI are next. See [ROADMAP.md](ROADMAP.md).
+The HTTP API serves health, model info, scoring, and per-application
+SHAP. Docker/CI are next. See [ROADMAP.md](ROADMAP.md).
 
 ## Tech Stack
 
@@ -65,14 +68,39 @@ cd credit-risk-api
 make dev          # .venv + dependencies
 make ingest       # download extract → SQLite
 make validate     # domain checks on the loans table
-make train        # CatBoost baseline → models/baseline.cbm + registry.json
-make tune         # Optuna on CV PR-AUC (sealed test closed), then persist winner
-make evaluate     # classification report + figures in reports/figures/
+make train        # CatBoost baseline → models/baseline-v1.cbm + registry.json
+make tune         # Optuna on CV PR-AUC (sealed test closed) → models/tuned-v1.cbm
+make evaluate     # classification report + figures in reports/figures/evaluation/
+make explain      # SHAP figures in reports/figures/shap/ (rest pool, not test)
+make run          # FastAPI on :8000 (needs the .cbm named in registry.json)
 make test         # unit tests (in-memory SQLite)
 make check        # lint + typecheck + tests
 ```
 
-## Planned API
+## API
+
+`make run` serves all four endpoints. Open `/docs` for the interactive
+schema.
+
+A loan is never sent raw into the model. One request follows this path:
+
+```
+JSON body → Pydantic → create_features → as_catboost_frame
+        → predict_proba  (+ TreeExplainer on /explain)  → JSON
+```
+
+| Step | What happens |
+|------|----------------|
+| JSON body | The client sends the application (income-style fields, amount, duration, …). There is **no** default label (`credit_class`): that is what we are estimating. |
+| Pydantic | Checks types, allowed categories, and numeric ranges. An unknown checking-account status or an age of 12 stops here with **422**. Nothing is scored. |
+| `create_features` | Adds the same derived columns used at training time (`credit_per_month`, `log_credit_amount`, `age_bin`). Train and serve must see the same columns. |
+| `as_catboost_frame` | Casts categoricals to text. CatBoost (and SHAP) were trained on native categories, not one-hot encodings. |
+| `predict_proba` | The model already loaded at startup returns **P(bad)**: the probability this applicant is a poor credit risk. |
+| TreeExplainer | Only on `/predict/explain`. It does **not** return a plot. It returns numbers: how much each feature pushed the score, in log-odds. The waterfall picture is just those numbers drawn; the API returns the list. |
+| JSON | `P(bad)` plus a decision at the registry threshold (`approve` / `review`). Explain adds `base_value`, `units: log_odds`, and `contributions`. |
+
+`GET /health` only answers “is the process up and did the model load?”.
+`GET /model/info` answers “which artifact, which threshold, which metrics?”.
 
 | Method | Endpoint            | Description                              |
 |--------|---------------------|------------------------------------------|
@@ -80,6 +108,15 @@ make check        # lint + typecheck + tests
 | POST   | `/predict/explain`  | Prediction + SHAP breakdown              |
 | GET    | `/health`           | Health check                             |
 | GET    | `/model/info`       | Model version, metrics, features used    |
+
+## Dataset
+
+Training data is the OpenML German Credit extract (`credit-g`, 1994).
+Columns such as `personal_status` (gendered marital status) and
+`foreign_worker` are **features of that dataset, not a policy I would
+deploy**. A production model in the EU would drop or tightly constrain
+protected attributes. They remain in the schema so train, SHAP, and
+`/predict` see the same published columns.
 
 ## Project Structure
 
@@ -91,13 +128,13 @@ credit-risk-api/
 │   ├── data/               # Download, ingest, SQL access, validation
 │   ├── features/           # Deterministic feature transform
 │   ├── model/              # Split protocol, metrics, training, evaluation
-│   ├── explainability/     # SHAP (upcoming)
-│   └── api/                # FastAPI (upcoming)
+│   ├── explainability/     # SHAP (log-odds TreeExplainer)
+│   └── api/                # FastAPI (health, info, predict, explain)
 ├── tests/
 │   ├── unit/
 │   └── integration/
 ├── docs/                   # Evaluation notes and curated figures
-├── models/                 # baseline.cbm (gitignored) + registry.json
+├── models/                 # {version}.cbm (gitignored) + registry.json
 ├── pyproject.toml
 ├── uv.lock
 ├── Makefile
@@ -125,6 +162,7 @@ so it does not veto the winner. Full manifest:
 
 - Baseline figures: [docs/baseline_evaluation.md](docs/baseline_evaluation.md)
 - Tuned-v1 figures and Optuna search: [docs/tuned-v1_evaluation.md](docs/tuned-v1_evaluation.md)
+- SHAP (log-odds, rest pool): [docs/shap_explainability.md](docs/shap_explainability.md)
 
 ## License
 
