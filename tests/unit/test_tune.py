@@ -96,11 +96,12 @@ def test_save_model_writes_tuning_and_winner_params(tuned: dict, tmp_path: Path)
     save_model(
         tuned["model"],
         result=tuned,
-        model_path=tmp_path / "baseline.cbm",
+        model_path=tmp_path / "tuned-v1.cbm",
         registry_path=tmp_path / "registry.json",
     )
     data = load_registry(tmp_path / "registry.json")
     assert data["version"] == "tuned-v1"
+    assert data["model_path"] == "tuned-v1.cbm"
     assert data["tuning"]["n_trials"] == 2
     assert data["catboost_params"]["iterations"] == 30
     assert data["catboost_params"]["depth"] in {3, 4}

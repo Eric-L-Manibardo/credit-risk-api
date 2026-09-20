@@ -1,7 +1,7 @@
 {
   "version": "tuned-v1",
   "trained_at": "2026-09-10T15:14:15+00:00",
-  "model_path": "baseline.cbm",
+  "model_path": "tuned-v1.cbm",
   "features": [
     "checking_status",
     "duration",

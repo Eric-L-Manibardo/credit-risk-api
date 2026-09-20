@@ -18,14 +18,14 @@ from optuna.samplers import TPESampler
 from optuna.trial import BaseTrial
 
 from src.features.pipeline import load_featured_loans
-from src.model.config import MODEL_PATH, OPTUNA_N_TRIALS, RANDOM_STATE
+from src.model.config import OPTUNA_N_TRIALS, RANDOM_STATE, artifact_path
 from src.model.metrics import summarize_cv
 from src.model.split import frame_to_xy, sealed_test_split
 from src.model.train import _format_cv, _format_test, cross_validate, train_baseline
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 
-FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures"
+FIGURES_DIR = Path(__file__).resolve().parents[2] / "reports" / "figures" / "optuna"
 # Published baseline CV PR-AUC (make train). Drawn on the history plot for context.
 BASELINE_CV_PR_AUC = 0.609
 N_TRIALS = OPTUNA_N_TRIALS
@@ -188,7 +188,7 @@ if __name__ == "__main__":
 
     registry_path = save_model(result["model"], result=result)
     print("\nArtifacts written:")
-    print(f"  model     {MODEL_PATH}")
+    print(f"  model     {artifact_path(result['version'])}")
     print(f"  registry  {registry_path}")
     for path in save_study_figures(
         result["_study"],

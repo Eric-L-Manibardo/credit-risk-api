@@ -12,8 +12,17 @@ FP_COST = 1
 OPTUNA_N_TRIALS = 20
 
 MODELS_DIR = Path(__file__).resolve().parents[2] / "models"
-MODEL_PATH = MODELS_DIR / "baseline.cbm"
 REGISTRY_PATH = MODELS_DIR / "registry.json"
+
+
+def artifact_path(version: str) -> Path:
+    """On-disk CatBoost file: ``models/{version}.cbm``.
+
+    ``make train`` writes ``baseline-v1.cbm``; ``make tune`` writes
+    ``tuned-v1.cbm``. They no longer share a filename.
+    """
+    return MODELS_DIR / f"{version}.cbm"
+
 
 # Modest defaults for n≈1000. Optuna (make tune) searches around these.
 CATBOOST_PARAMS: dict[str, int | float | str | bool] = {

@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier
 
-from src.features.engineering import CATEGORICAL_FEATURES
+from src.features.engineering import CATEGORICAL_FEATURES, as_catboost_frame
 from src.features.pipeline import load_featured_loans
 from src.model.config import CATBOOST_PARAMS, RANDOM_STATE
 from src.model.metrics import classification_metrics, summarize_cv
@@ -29,13 +29,6 @@ def merge_params(overrides: Mapping[str, Any] | None = None) -> Params:
     return merged
 
 
-def _catboost_frame(x: pd.DataFrame) -> pd.DataFrame:
-    out = x.copy()
-    for col in CATEGORICAL_FEATURES:
-        out[col] = out[col].astype(str)
-    return out
-
-
 def _make_model(params: Mapping[str, Any] | None = None) -> CatBoostClassifier:
     return CatBoostClassifier(**merge_params(params))
 
@@ -46,7 +39,7 @@ def cross_validate(
     params: Mapping[str, Any] | None = None,
 ) -> tuple[list[dict[str, float]], np.ndarray]:
     """5-fold on one pool. Returns per-fold metrics and out-of-fold P(bad)."""
-    x_cb = _catboost_frame(x)
+    x_cb = as_catboost_frame(x)
     fold_metrics: list[dict[str, float]] = []
     oof_proba = np.zeros(len(y), dtype=float)
     splitter = cv_folds(y)
@@ -73,8 +66,8 @@ def train_baseline(
     x_rest, x_test, y_rest, y_test, ids_rest, ids_test = sealed_test_split(x, y, ids)
     fold_metrics, oof_proba = cross_validate(x_rest, y_rest, used)
 
-    x_rest_cb = _catboost_frame(x_rest)
-    x_test_cb = _catboost_frame(x_test)
+    x_rest_cb = as_catboost_frame(x_rest)
+    x_test_cb = as_catboost_frame(x_test)
     final_model = _make_model(used)
     final_model.fit(x_rest_cb, y_rest, cat_features=list(CATEGORICAL_FEATURES))
     test_proba = final_model.predict_proba(x_test_cb)[:, 1]
@@ -116,7 +109,7 @@ def _format_test(test: dict[str, float]) -> str:
 
 
 if __name__ == "__main__":
-    from src.model.config import MODEL_PATH
+    from src.model.config import artifact_path
     from src.model.registry import save_model
 
     featured = load_featured_loans()
@@ -130,5 +123,5 @@ if __name__ == "__main__":
 
     registry_path = save_model(result["model"], result=result)
     print("\nArtifacts written:")
-    print(f"  model     {MODEL_PATH}")
+    print(f"  model     {artifact_path(result['version'])}")
     print(f"  registry  {registry_path}")

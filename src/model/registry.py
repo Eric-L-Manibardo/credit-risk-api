@@ -1,9 +1,11 @@
 """Persist and load the trained model and its metadata.
 
-The ``.cbm`` binary is gitignored (regenerate with ``make train``).
-``registry.json`` is committed: it is the manifest the API and
-``/model/info`` read at startup. A JSON without the binary cannot score;
-a binary without the JSON does not document the operating point.
+The ``.cbm`` binary is gitignored (regenerate with ``make train`` or
+``make tune``). The filename is the registry version
+(``baseline-v1.cbm``, ``tuned-v1.cbm``). ``registry.json`` is committed:
+it is the manifest the API and ``/model/info`` read at startup. A JSON
+without the binary cannot score; a binary without the JSON does not
+document the operating point.
 """
 
 from __future__ import annotations
@@ -21,9 +23,9 @@ from src.model.config import (
     DECISION_THRESHOLD,
     FN_COST,
     FP_COST,
-    MODEL_PATH,
     MODELS_DIR,
     REGISTRY_PATH,
+    artifact_path,
 )
 
 REGISTRY_KEYS = frozenset(
@@ -53,17 +55,23 @@ def save_model(
     model: CatBoostClassifier,
     *,
     result: dict[str, Any],
-    model_path: Path = MODEL_PATH,
+    model_path: Path | None = None,
     registry_path: Path = REGISTRY_PATH,
 ) -> Path:
-    """Write the .cbm and registry.json. Returns the registry path."""
-    model_path.parent.mkdir(parents=True, exist_ok=True)
-    model.save_model(str(model_path))
+    """Write the .cbm and registry.json. Returns the registry path.
+
+    Default filename is ``{version}.cbm`` so a baseline fit cannot
+    overwrite the tuned artifact (or the other way around).
+    """
+    version = str(result.get("version", "baseline-v1"))
+    path = model_path if model_path is not None else artifact_path(version)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    model.save_model(str(path))
 
     registry: dict[str, Any] = {
-        "version": result.get("version", "baseline-v1"),
+        "version": version,
         "trained_at": datetime.now(UTC).isoformat(timespec="seconds"),
-        "model_path": model_path.name,
+        "model_path": path.name,
         "features": result["feature_names"],
         "cat_features": list(CATEGORICAL_FEATURES),
         "n_train": result["n_rest"],
@@ -90,7 +98,7 @@ def save_model(
 def load_registry(path: Path = REGISTRY_PATH) -> dict[str, Any]:
     """Read the registry manifest. Raises FileNotFoundError if missing."""
     if not path.exists():
-        raise FileNotFoundError(f"Registry {path} not found. Run: make train")
+        raise FileNotFoundError(f"Registry {path} not found. Run: make train or make tune")
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError(f"Registry {path} is not a JSON object")
@@ -113,7 +121,7 @@ def load_model(
     root = models_dir if models_dir is not None else MODELS_DIR
     model_path = root / registry["model_path"]
     if not model_path.exists():
-        raise FileNotFoundError(f"Model file {model_path} not found. Run: make train")
+        raise FileNotFoundError(f"Model file {model_path} not found. Run: make train or make tune")
     model = CatBoostClassifier()
     model.load_model(str(model_path))
     return model
