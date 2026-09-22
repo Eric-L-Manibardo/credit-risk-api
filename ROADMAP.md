@@ -11,7 +11,7 @@ depend on a working data layer.
 | [Training](#model-training--evaluation) | CatBoost, metrics, model registry | Done |
 | [Explainability](#explainability-shap) | Global and per-prediction SHAP | Done |
 | [API](#fastapi-service) | REST scoring and explanations | Done |
-| [Release](#docker-cicd--readme) | Containers, CI, production docs | Pending |
+| [Release](#docker-cicd--readme) | Containers, CI, production docs | Done |
 | [Domain shift](#optional-cross-country--domain-shift) | Second country / schema | Optional |
 | [Related service](#optional-related-service) | Monitoring, batch, or policy rules | Optional |
 
@@ -103,6 +103,11 @@ returns the same score plus a local SHAP breakdown in log-odds.
 **Goal:** Containerize the service and add GitHub Actions.
 
 **Deliverable:** Multi-stage image, Compose, CI on pull requests.
+
+`Dockerfile` builds with uv; the runtime image is slim Python plus
+libgomp (CatBoost). Compose mounts `./models` because the `.cbm` is
+gitignored. PRs run Ruff, mypy, pytest, and `docker build`
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)).
 
 ---
 

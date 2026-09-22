@@ -39,7 +39,8 @@ How the model attributes a score:
 [docs/shap_explainability.md](docs/shap_explainability.md).
 
 The HTTP API serves health, model info, scoring, and per-application
-SHAP. Docker/CI are next. See [ROADMAP.md](ROADMAP.md).
+SHAP. A multi-stage image and GitHub Actions CI close the loop.
+See [ROADMAP.md](ROADMAP.md).
 
 ## Tech Stack
 
@@ -73,6 +74,7 @@ make tune         # Optuna on CV PR-AUC (sealed test closed) → models/tuned-v1
 make evaluate     # classification report + figures in reports/figures/evaluation/
 make explain      # SHAP figures in reports/figures/shap/ (rest pool, not test)
 make run          # FastAPI on :8000 (needs the .cbm named in registry.json)
+make docker-up    # same API in Compose (mounts ./models)
 make test         # unit tests (in-memory SQLite)
 make check        # lint + typecheck + tests
 ```
@@ -109,6 +111,29 @@ JSON body → Pydantic → create_features → as_catboost_frame
 | GET    | `/health`           | Health check                             |
 | GET    | `/model/info`       | Model version, metrics, features used    |
 
+## Docker
+
+The image is multi-stage: uv builds a production venv, the runtime is
+`python:3.12-slim` plus `libgomp1` (CatBoost). Tests, the German Credit
+extract, and the `.cbm` binary stay **out** of the image.
+
+`registry.json` is copied in. The CatBoost file is bind-mounted from
+`./models` (it is gitignored; train or tune locally first).
+
+```bash
+make tune         # writes models/tuned-v1.cbm + registry.json
+make docker-up    # http://127.0.0.1:8000/health
+```
+
+Compose is `compose.yaml`. Stop with `make docker-down`.
+
+## CI
+
+Pull requests run [`.github/workflows/ci.yml`](.github/workflows/ci.yml):
+Ruff, mypy, pytest, and `docker build`. The test suite trains a tiny
+CatBoost in tmp; it does not download OpenML or need the production
+`.cbm`.
+
 ## Dataset
 
 Training data is the OpenML German Credit extract (`credit-g`, 1994).
@@ -135,6 +160,9 @@ credit-risk-api/
 │   └── integration/
 ├── docs/                   # Evaluation notes and curated figures
 ├── models/                 # {version}.cbm (gitignored) + registry.json
+├── Dockerfile
+├── compose.yaml
+├── .github/workflows/ci.yml
 ├── pyproject.toml
 ├── uv.lock
 ├── Makefile

@@ -1,0 +1,23 @@
+services:
+  api:
+    build: .
+    image: credit-risk-api:local
+    ports:
+      - "8000:8000"
+    volumes:
+      # .cbm is gitignored; registry.json is in the image and on this mount
+      - ./models:/app/models:ro
+    environment:
+      PYTHONPATH: /app
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 40s

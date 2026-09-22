@@ -1,4 +1,4 @@
-.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate tune explain study-pdf study-epub study
+.PHONY: install dev test test-cov lint typecheck format clean run check lock ingest validate train evaluate tune explain docker-build docker-up docker-down study-pdf study-epub study
 
 install:
 	uv sync --no-dev
@@ -45,6 +45,15 @@ explain:
 
 run:
 	uv run uvicorn src.api.app:app --reload --host 0.0.0.0 --port 8000
+
+docker-build:
+	docker build -t credit-risk-api:local .
+
+docker-up:
+	docker compose up --build
+
+docker-down:
+	docker compose down
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
