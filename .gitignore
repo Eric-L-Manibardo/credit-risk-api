@@ -48,7 +48,8 @@ catboost_info/
 *.png
 !docs_learning/*.png
 # Curated figures published with the evaluation notes
-!docs/figures/*.png
+!docs/german_credit/figures/*.png
+!docs/bondora/figures/*.png
 
 # Evaluation output (regenerate with make evaluate)
 reports/

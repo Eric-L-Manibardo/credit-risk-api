@@ -140,4 +140,4 @@ rejected good customer. No credit committee would sign that.
 CV PR-AUC with the sealed test closed and persists `tuned-v1`. The figures
 in this file are the baseline read. What the search changed, including
 Optuna's history: [tuned-v1_evaluation.md](tuned-v1_evaluation.md).
-SHAP, the HTTP API, and Docker/CI follow. See [ROADMAP.md](../ROADMAP.md).
+SHAP, the HTTP API, and Docker/CI follow. See [ROADMAP.md](../../ROADMAP.md).

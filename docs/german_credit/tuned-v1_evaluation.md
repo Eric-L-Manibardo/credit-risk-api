@@ -133,4 +133,4 @@ not a retrain.
 4. **Stop searching.** Trial 10 was the peak; 20 was already past the
    point of diminishing returns on 850 rows.
 
-SHAP, then the API. See [ROADMAP.md](../ROADMAP.md).
+SHAP, then the API. See [ROADMAP.md](../../ROADMAP.md).

@@ -1,7 +1,22 @@
 # Roadmap
 
-Built in vertical slices. Each item has a goal and a deliverable; later stages
-depend on a working data layer.
+Two books live in this repo. The German Credit API is finished and stays
+the served model. The current work is the Bondora loan book: euros,
+2009–2024, read before any schema or second model.
+
+| Book | What it is | Status |
+|------|------------|--------|
+| [German Credit](#german-credit--finished) | PoC scoring API (OpenML `credit-g`, 1994) | Finished |
+| [Bondora](#bondora--in-progress) | Consumer loans in euros. EDA before a schema | In progress |
+
+Public notes: [docs/README.md](docs/README.md).
+
+---
+
+## German Credit — finished
+
+The pipeline below is the proof of concept. It is not the template for
+Bondora. Data, features, CatBoost, SHAP, FastAPI, Docker, and CI are closed.
 
 | Stage | Focus | Status |
 |-------|--------|--------|
@@ -12,8 +27,6 @@ depend on a working data layer.
 | [Explainability](#explainability-shap) | Global and per-prediction SHAP | Done |
 | [API](#fastapi-service) | REST scoring and explanations | Done |
 | [Release](#docker-cicd--readme) | Containers, CI, production docs | Done |
-| [Domain shift](#optional-cross-country--domain-shift) | Second country / schema | Optional |
-| [Related service](#optional-related-service) | Monitoring, batch, or policy rules | Optional |
 
 ```
 [CSV] → [SQLite DB] → [SQL Queries] → [Pandas DF] → [Feature Engineering] → [CatBoost Model]
@@ -76,7 +89,7 @@ closed, winner persisted as `tuned-v1.cbm`.
 CatBoost categorical splits force TreeExplainer in `tree_path_dependent`
 mode, so SHAP is in **log-odds**, not probability. `make explain` ranks features on a 200-row sample of the 85 % rest pool
 (sealed test stays closed) and writes a global bar plus two local
-waterfalls. Notes: [docs/shap_explainability.md](docs/shap_explainability.md).
+waterfalls. Notes: [docs/german_credit/shap_explainability.md](docs/german_credit/shap_explainability.md).
 The per-row dict is the payload `POST /predict/explain` returns.
 
 ---
@@ -111,29 +124,47 @@ gitignored. PRs run Ruff, mypy, pytest, and `docker build`
 
 ---
 
-## Optional: cross-country / domain shift
+## Bondora — in progress
 
-**Goal:** Run a second dataset (another country or schema) through the same
-pipeline and document what breaks (mapping, calibration, SHAP, default
-definition). A swapped CSV with a similar AUC is not sufficient.
+**Goal:** Decide the population, the label, and the origination columns
+in writing before any table or model. The German Credit pipeline is not
+copied onto this file.
 
-**Deliverable:** Same ingest / features / serving code, second extract, short
-shift report. Candidate sets: Taiwanese Credit, Home Credit, Lending Club
-extract.
+**Deliverable so far:** Public EDA notes under `docs/bondora/`. The
+working mark is collection started within 12 months of `LoanDate`, on
+vintages 2009–2022. It is not the model target.
+
+| Step | Note | Status |
+|------|------|--------|
+| 1. What a row is | [docs/bondora/eda1.md](docs/bondora/eda1.md) | Done |
+| 2. The clock stops | [docs/bondora/eda2.md](docs/bondora/eda2.md) | Done |
+| 3. `DefaultDate` is not `Status` | [docs/bondora/eda3.md](docs/bondora/eda3.md) | Done |
+| 4. Country inside the same year | — | Next |
+| 5. Column inventory | — | Open |
+| 6. Associations that keep their sign | — | Open |
+| 7. Columns that are the outcome | — | Open |
+| 8. Closing note: population, label, columns | — | Open |
+
+Download, local only (the CSV is gitignored):
+
+```bash
+uv run python -m src.data.download bondora
+```
+
+Needs a Kaggle token in `~/.kaggle/access_token`. It does not touch the
+German Credit database or the API.
+
+`make ingest`, `make train`, and `make run` still mean German Credit.
+Bondora has no schema, no model, and no second service yet. Those wait
+on the closing note.
 
 ---
 
-## Optional: related service
+## Later
 
-**Goal:** Add a service beside the API, not a second application.
-
-| Add | Role |
-|---|---|
-| Monitoring / drift (PSI, calibration drop) | Detect model decay |
-| Batch scoring (same library as the API) | Online vs batch |
-| Policy rules (score + SHAP → review / reject) | Decisioning overlay |
-
-**Deliverable:** One extra process in Compose, tested and documented.
+A service beside the German Credit API (drift monitoring, batch scoring,
+or a score-plus-SHAP policy) stays unscheduled. It is not the current
+work.
 
 ---
 
@@ -142,4 +173,4 @@ extract.
 - Jupyter notebooks as production code
 - Heavy MLOps (MLflow, Kubeflow)
 - Frontend
-- A second credit-scoring clone of this stack
+- A second credit-scoring clone of the German Credit stack

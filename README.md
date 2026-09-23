@@ -1,6 +1,8 @@
 # Credit Risk API
 
-Credit default scoring service: CatBoost classification, SHAP explanations, FastAPI.
+A finished German Credit scoring API, and a Bondora loan book that is
+still being read. The service (CatBoost, SHAP, FastAPI, Docker) scores
+the 1994 proof of concept. It does not score Bondora.
 
 ## Architecture
 
@@ -20,9 +22,16 @@ graph LR
 
 ## Status
 
-The data layer and feature pipeline are in place: German Credit is ingested
-into SQLite, accessed only through SQLAlchemy, validated, and transformed
-with a deterministic `create_features` used for training and scoring.
+| Book | Role in this repo | Status |
+|------|-------------------|--------|
+| German Credit | Served model: SQLite, CatBoost, SHAP, FastAPI | Finished |
+| Bondora | Euro loans, 2009–2024. EDA before any schema | In progress |
+
+### German Credit — finished
+
+The proof of concept is ingested into SQLite, accessed only through
+SQLAlchemy, validated, and transformed with a deterministic
+`create_features` used for training and scoring.
 
 A CatBoost baseline trains against a sealed test set with 5-fold stratified
 cross-validation. `make train` writes `models/baseline-v1.cbm` (gitignored)
@@ -32,15 +41,32 @@ then persists the winner as `models/tuned-v1.cbm`. `make evaluate` reports
 ranking, calibration, and cost-per-client at every decision threshold.
 
 How the baseline behaves:
-[docs/baseline_evaluation.md](docs/baseline_evaluation.md).
+[docs/german_credit/baseline_evaluation.md](docs/german_credit/baseline_evaluation.md).
 What the Optuna search changed:
-[docs/tuned-v1_evaluation.md](docs/tuned-v1_evaluation.md).
+[docs/german_credit/tuned-v1_evaluation.md](docs/german_credit/tuned-v1_evaluation.md).
 How the model attributes a score:
-[docs/shap_explainability.md](docs/shap_explainability.md).
+[docs/german_credit/shap_explainability.md](docs/german_credit/shap_explainability.md).
 
 The HTTP API serves health, model info, scoring, and per-application
-SHAP. A multi-stage image and GitHub Actions CI close the loop.
-See [ROADMAP.md](ROADMAP.md).
+SHAP for that model. A multi-stage image and GitHub Actions CI close
+the loop. See [ROADMAP.md](ROADMAP.md).
+
+### Bondora — in progress
+
+Separate extract, not a second pass of the same pipeline. Notes so far:
+
+- [1. What a row is](docs/bondora/eda1.md)
+- [2. The clock stops](docs/bondora/eda2.md) — 2023 and 2024 are too young to compare
+- [3. DefaultDate is not Status](docs/bondora/eda3.md) — working mark is collection within 12 months of `LoanDate`
+
+The CSV stays local (`data/raw/LoanData.csv`, gitignored):
+
+```bash
+uv run python -m src.data.download bondora
+```
+
+A Kaggle token belongs in `~/.kaggle/access_token`, not in the repo.
+No Bondora schema, model, or endpoint yet.
 
 ## Tech Stack
 
@@ -136,12 +162,16 @@ CatBoost in tmp; it does not download OpenML or need the production
 
 ## Dataset
 
-Training data is the OpenML German Credit extract (`credit-g`, 1994).
+The API trains on the OpenML German Credit extract (`credit-g`, 1994).
 Columns such as `personal_status` (gendered marital status) and
 `foreign_worker` are **features of that dataset, not a policy I would
 deploy**. A production model in the EU would drop or tightly constrain
 protected attributes. They remain in the schema so train, SHAP, and
 `/predict` see the same published columns.
+
+Bondora is a later euro consumer book (about 390,000 issued loans,
+2009–2024, one snapshot on 23 May 2024). It is downloaded beside the
+German extract and is not loaded into `data/credit.db`.
 
 ## Project Structure
 
@@ -158,7 +188,8 @@ credit-risk-api/
 ├── tests/
 │   ├── unit/
 │   └── integration/
-├── docs/                   # Evaluation notes and curated figures
+├── docs/                   # Public notes: german_credit/ and bondora/
+├── scripts/                # Bondora EDA (German Credit uses make / src/)
 ├── models/                 # {version}.cbm (gitignored) + registry.json
 ├── Dockerfile
 ├── compose.yaml
@@ -171,9 +202,9 @@ credit-risk-api/
 
 ## Model Performance
 
-Current artifact is `tuned-v1` (20 Optuna trials, objective = mean 5-fold
-PR-AUC). Operating point is still 0.5; the Hofmann-cost optimum (0.25) is
-a product decision, not applied yet.
+German Credit only. The served artifact is `tuned-v1` (20 Optuna trials,
+objective = mean 5-fold PR-AUC). Operating point is still 0.5; the
+Hofmann-cost optimum (0.25) is a product decision, not applied yet.
 
 | Metric | Baseline CV | Tuned CV | Tuned test |
 |---|---|---|---|
@@ -188,9 +219,12 @@ PR-AUC moved 0.692 → 0.674; with ~45 defaults that is inside the noise,
 so it does not veto the winner. Full manifest:
 [models/registry.json](models/registry.json).
 
-- Baseline figures: [docs/baseline_evaluation.md](docs/baseline_evaluation.md)
-- Tuned-v1 figures and Optuna search: [docs/tuned-v1_evaluation.md](docs/tuned-v1_evaluation.md)
-- SHAP (log-odds, rest pool): [docs/shap_explainability.md](docs/shap_explainability.md)
+- Baseline figures: [docs/german_credit/baseline_evaluation.md](docs/german_credit/baseline_evaluation.md)
+- Tuned-v1 figures and Optuna search: [docs/german_credit/tuned-v1_evaluation.md](docs/german_credit/tuned-v1_evaluation.md)
+- SHAP (log-odds, rest pool): [docs/german_credit/shap_explainability.md](docs/german_credit/shap_explainability.md)
+- Bondora 1, what a row is: [docs/bondora/eda1.md](docs/bondora/eda1.md)
+- Bondora 2, the clock: [docs/bondora/eda2.md](docs/bondora/eda2.md)
+- Bondora 3, DefaultDate is not Status: [docs/bondora/eda3.md](docs/bondora/eda3.md)
 
 ## License
 
