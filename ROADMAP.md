@@ -132,7 +132,10 @@ copied onto this file.
 
 **Deliverable so far:** Public EDA notes under `docs/bondora/`. The
 working mark is collection started within 12 months of `LoanDate`, on
-vintages 2009-2022. It is not the model target.
+vintages 2009-2022. It is not the model target. From step 6 the
+window is 2018-2022: from June 2017 the application lost purpose,
+employment, and debt-to-income, and an application scored today looks
+like those years.
 
 | Step | Note | Status |
 |------|------|--------|
@@ -140,8 +143,8 @@ vintages 2009-2022. It is not the model target.
 | 2. The clock stops | [docs/bondora/eda2.md](docs/bondora/eda2.md) | Done |
 | 3. `DefaultDate` is not `Status` | [docs/bondora/eda3.md](docs/bondora/eda3.md) | Done |
 | 4. Country inside the same year | [docs/bondora/eda4.md](docs/bondora/eda4.md) | Done |
-| 5. Column inventory | - | Next |
-| 6. Associations that keep their sign | - | Open |
+| 5. What was known on the loan day | [docs/bondora/eda5.md](docs/bondora/eda5.md) | Done |
+| 6. Associations that keep their sign | - | Next |
 | 7. Columns that are the outcome | - | Open |
 | 8. Closing note: population, label, columns | - | Open |
 

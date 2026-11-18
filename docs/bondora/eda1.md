@@ -1,6 +1,7 @@
 # Bondora extract: what a row is
 
-Note 1 of the Bondora loan book (`data/raw/LoanData.csv`). Next:
+Note 1 of the Bondora loan book (`data/raw/LoanData.csv`). New to
+Bondora? Read [how the platform works](platform.md) first. Next:
 [the clock](eda2.md). The German Credit reports next door score a
 1,000-row textbook sample.
 This file is a euro consumer book, photographed once, and it is not a

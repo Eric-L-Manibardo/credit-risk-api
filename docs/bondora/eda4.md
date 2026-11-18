@@ -78,3 +78,4 @@ changes side in 2021. A constant country effect is a hypothesis this
 table already strains. Whether the slope of income or amount also
 changes side is the association note. One model, or one model per
 country, is not chosen here.
+Next: [what was known on the loan day](eda5.md).

@@ -55,10 +55,12 @@ the loop. See [ROADMAP.md](ROADMAP.md).
 
 Separate extract, not a second pass of the same pipeline. Notes so far:
 
+- [How Bondora works](docs/bondora/platform.md) - investors fund the loans and take the losses; Bondora scores, prices, and collects
 - [1. What a row is](docs/bondora/eda1.md)
 - [2. The clock stops](docs/bondora/eda2.md) - 2023 and 2024 are too young to compare
 - [3. DefaultDate is not Status](docs/bondora/eda3.md) - working mark is collection within 12 months of `LoanDate`
 - [4. Country is not the calendar](docs/bondora/eda4.md) - Spain stays above Estonia inside one year; Finland's rank changes
+- [5. What was known on the loan day](docs/bondora/eda5.md) - from June 2017 the application loses purpose, employment, and debt-to-income
 
 The CSV stays local (`data/raw/LoanData.csv`, gitignored):
 
@@ -223,10 +225,12 @@ so it does not veto the winner. Full manifest:
 - Baseline figures: [docs/german_credit/baseline_evaluation.md](docs/german_credit/baseline_evaluation.md)
 - Tuned-v1 figures and Optuna search: [docs/german_credit/tuned-v1_evaluation.md](docs/german_credit/tuned-v1_evaluation.md)
 - SHAP (log-odds, rest pool): [docs/german_credit/shap_explainability.md](docs/german_credit/shap_explainability.md)
+- Bondora, how the platform works: [docs/bondora/platform.md](docs/bondora/platform.md)
 - Bondora 1, what a row is: [docs/bondora/eda1.md](docs/bondora/eda1.md)
 - Bondora 2, the clock: [docs/bondora/eda2.md](docs/bondora/eda2.md)
 - Bondora 3, DefaultDate is not Status: [docs/bondora/eda3.md](docs/bondora/eda3.md)
 - Bondora 4, country is not the calendar: [docs/bondora/eda4.md](docs/bondora/eda4.md)
+- Bondora 5, what was known on the loan day: [docs/bondora/eda5.md](docs/bondora/eda5.md)
 
 ## License
 

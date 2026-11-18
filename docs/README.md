@@ -17,7 +17,9 @@ serve this model.
 Euro consumer loans, 2009-2024. Read this before assuming the German
 Credit pipeline transfers.
 
+- [How Bondora works](bondora/platform.md) - borrowers, investors, and the platform in between
 - [1. What a row is](bondora/eda1.md)
 - [2. The clock stops](bondora/eda2.md)
 - [3. DefaultDate is not Status](bondora/eda3.md)
 - [4. Country is not the calendar](bondora/eda4.md)
+- [5. What was known on the loan day](bondora/eda5.md)
