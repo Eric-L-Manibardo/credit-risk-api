@@ -25,9 +25,9 @@ graph LR
 | Book | Role in this repo | Status |
 |------|-------------------|--------|
 | German Credit | Served model: SQLite, CatBoost, SHAP, FastAPI | Finished |
-| Bondora | Euro loans, 2009–2024. EDA before any schema | In progress |
+| Bondora | Euro loans, 2009-2024. EDA before any schema | In progress |
 
-### German Credit — finished
+### German Credit - finished
 
 The proof of concept is ingested into SQLite, accessed only through
 SQLAlchemy, validated, and transformed with a deterministic
@@ -51,13 +51,13 @@ The HTTP API serves health, model info, scoring, and per-application
 SHAP for that model. A multi-stage image and GitHub Actions CI close
 the loop. See [ROADMAP.md](ROADMAP.md).
 
-### Bondora — in progress
+### Bondora - in progress
 
 Separate extract, not a second pass of the same pipeline. Notes so far:
 
 - [1. What a row is](docs/bondora/eda1.md)
-- [2. The clock stops](docs/bondora/eda2.md) — 2023 and 2024 are too young to compare
-- [3. DefaultDate is not Status](docs/bondora/eda3.md) — working mark is collection within 12 months of `LoanDate`
+- [2. The clock stops](docs/bondora/eda2.md) - 2023 and 2024 are too young to compare
+- [3. DefaultDate is not Status](docs/bondora/eda3.md) - working mark is collection within 12 months of `LoanDate`
 
 The CSV stays local (`data/raw/LoanData.csv`, gitignored):
 
@@ -119,7 +119,7 @@ JSON body → Pydantic → create_features → as_catboost_frame
 
 | Step | What happens |
 |------|----------------|
-| JSON body | The client sends the application (income-style fields, amount, duration, …). There is **no** default label (`credit_class`): that is what we are estimating. |
+| JSON body | The client sends the application (income-style fields, amount, duration, ...). There is **no** default label (`credit_class`): that is what we are estimating. |
 | Pydantic | Checks types, allowed categories, and numeric ranges. An unknown checking-account status or an age of 12 stops here with **422**. Nothing is scored. |
 | `create_features` | Adds the same derived columns used at training time (`credit_per_month`, `log_credit_amount`, `age_bin`). Train and serve must see the same columns. |
 | `as_catboost_frame` | Casts categoricals to text. CatBoost (and SHAP) were trained on native categories, not one-hot encodings. |
@@ -127,8 +127,8 @@ JSON body → Pydantic → create_features → as_catboost_frame
 | TreeExplainer | Only on `/predict/explain`. It does **not** return a plot. It returns numbers: how much each feature pushed the score, in log-odds. The waterfall picture is just those numbers drawn; the API returns the list. |
 | JSON | `P(bad)` plus a decision at the registry threshold (`approve` / `review`). Explain adds `base_value`, `units: log_odds`, and `contributions`. |
 
-`GET /health` only answers “is the process up and did the model load?”.
-`GET /model/info` answers “which artifact, which threshold, which metrics?”.
+`GET /health` only answers "is the process up and did the model load?".
+`GET /model/info` answers "which artifact, which threshold, which metrics?".
 
 | Method | Endpoint            | Description                              |
 |--------|---------------------|------------------------------------------|
@@ -170,7 +170,7 @@ protected attributes. They remain in the schema so train, SHAP, and
 `/predict` see the same published columns.
 
 Bondora is a later euro consumer book (about 390,000 issued loans,
-2009–2024, one snapshot on 23 May 2024). It is downloaded beside the
+2009-2024, one snapshot on 23 May 2024). It is downloaded beside the
 German extract and is not loaded into `data/credit.db`.
 
 ## Project Structure

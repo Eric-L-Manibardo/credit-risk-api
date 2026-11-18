@@ -18,8 +18,8 @@ base_value + Σ SHAP_i  =  raw score
 P(bad) = sigmoid(raw score)
 ```
 
-The base value on this fit is **−0.406**. That is the model's average
-log-odds before looking at a row; sigmoid(−0.406) ≈ 0.40, in line with
+The base value on this fit is **-0.406**. That is the model's average
+log-odds before looking at a row; sigmoid(-0.406) ≈ 0.40, in line with
 the overstated mean P(bad) from training with `auto_class_weights=Balanced`.
 
 A positive SHAP value pushes toward class `bad`. The sign reads the same
@@ -31,8 +31,8 @@ way as in probability space; the **units** do not. The payload
 
 ![Mean |SHAP| on 200 rest-pool rows](figures/shap_global_bar.png)
 
-`checking_status` dominates (mean |SHAP| 0.67). The next three —
-`savings_status`, `credit_history`, `duration` — sit around 0.21. The
+`checking_status` dominates (mean |SHAP| 0.67). The next three -
+`savings_status`, `credit_history`, `duration` - sit around 0.21. The
 derived `credit_per_month` (0.18) earns its keep; `log_credit_amount` is
 further down. Age as a number barely shows; the binned `age_bin` is in
 the remainder.
@@ -46,12 +46,12 @@ which matches every published analysis of German Credit I have seen.
 The CLI picks the rest-pool row with the highest P(bad) and the one with
 the lowest, so the plots are readable extremes, not typical applicants.
 
-### High risk — id 96, P(bad) = 0.90 (label: bad)
+### High risk - id 96, P(bad) = 0.90 (label: bad)
 
 ![Waterfall for the highest-scoring rest-pool loan](figures/shap_waterfall_high.png)
 
 Almost every bar is red. The largest pushes are `credit_history =
-no credits/all paid` (+0.54) and `checking_status = 0<=X<200` (+0.50),
+no credits/all paid` (+0.54) and `checking_status` in the 0 to 200 DM band (+0.50),
 then a large loan (`credit_amount` 15 945 and its log) over 54 months,
 thin savings, and no known property. The one blue bar is
 `credit_per_month`: the monthly load is not what the model dislikes;
@@ -62,18 +62,18 @@ signal twice; SHAP splits credit across correlated columns rather than
 picking one. That is a limitation of the attribution, not a second
 independent fact about the loan.
 
-### Low risk — id 235, P(bad) = 0.02 (label: good)
+### Low risk - id 235, P(bad) = 0.02 (label: good)
 
 ![Waterfall for the lowest-scoring rest-pool loan](figures/shap_waterfall_low.png)
 
-Almost every bar is blue. `checking_status = no checking` (−0.82) and a
-4-month duration (−0.79) do most of the work, then
+Almost every bar is blue. `checking_status = no checking` (-0.82) and a
+4-month duration (-0.79) do most of the work, then
 `credit_history = critical/other existing credit`. In this extract those
-labels are protective: “no checking account” and “other credits at this
-bank” historically mark *better* risks, which is a quirk of German Credit
+labels are protective: "no checking account" and "other credits at this
+bank" historically mark *better* risks, which is a quirk of German Credit
 and not a policy I would ship without a domain review.
 
-The only red bar in the top slice is `savings_status = <100`, and it is
+The only red bar in the top slice is `savings_status` below 100 DM, and it is
 small. The model is not finding hidden risk here; it is piling up
 protective features.
 

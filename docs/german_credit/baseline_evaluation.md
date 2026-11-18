@@ -58,7 +58,7 @@ about.
 The curve sits below the diagonal across the whole range: mean predicted
 P(bad) is 0.405 while the observed default rate is 0.300. The model
 **overstates risk**, which is the expected cost of training with
-`auto_class_weights=Balanced` — it learns in a world that looks 50/50.
+`auto_class_weights=Balanced` - it learns in a world that looks 50/50.
 
 Brier 0.179 is only moderately better than the 0.21 you get by predicting
 the base rate for everyone. So the **ordering is usable, the number is
@@ -84,13 +84,13 @@ matrix applied at every cut-off, counted on out-of-fold rows:
 `cost(t) = (5 × FN + 1 × FP) / N`.
 
 The cheapest cut-off is **0.25 at 0.506 per client**, against **0.635 at
-the default 0.5** — a 20 % improvement with no retraining. Recall on `bad`
+the default 0.5** - a 20 % improvement with no retraining. Recall on `bad`
 goes from 0.69 to 0.90 while precision drops from 0.54 to 0.43, and with
 FN weighted 5× that trade is worth taking. The minimum is flat between
 0.20 and 0.30, so the exact value is not delicate.
 
-Two things worth noting. F1 peaks around 0.45–0.50, where cost is already
-poor, because F1 treats both errors as equal — it is the wrong objective
+Two things worth noting. F1 peaks around 0.45-0.50, where cost is already
+poor, because F1 treats both errors as equal - it is the wrong objective
 here. And a calibrated model with this matrix would cut at
 `C_FP / (C_FP + C_FN)` = 0.167; my empirical optimum is higher precisely
 because the scores are inflated. The calibration plot and the cost curve
@@ -99,7 +99,7 @@ are telling the same story.
 A real project rarely hands you the 5. It does not need to: the ratio
 follows from exposure times loss-given-default on one side and lost
 interest margin plus acquisition cost on the other. And picking 0.5
-"because it is the default" is not neutral — it is a cost assumption too:
+"because it is the default" is not neutral - it is a cost assumption too:
 
 | If a FN costs | Cheapest threshold | Recall (`bad`) |
 |---|---:|---:|
@@ -126,7 +126,7 @@ rejected good customer. No credit committee would sign that.
    diagnosis.
 3. **Tune on PR-AUC, inside the CV folds.** Done: 20 trials, winner in
    `registry.json`. The sealed test stayed closed during the search.
-4. **Two thresholds instead of one.** Given the 0.3–0.6 overlap, automating
+4. **Two thresholds instead of one.** Given the 0.3-0.6 overlap, automating
    the extremes and routing the grey band to manual review is a better
    product than pretending a single frontier exists. Capacity then sets
    the band width, and the score distribution turns that into a percentile.

@@ -7,10 +7,24 @@ later charts will share. That mark is not the model target.
 Counts come from
 `uv run python scripts/EDA_bondora/bondora_step3_label.py`.
 
+## What collection means
+
+A missed installment is not collection yet. Bondora records that day in
+`DebtOccuredOn` and the loan can sit in `Late` while the platform
+waits. The median wait in this file runs from 62 days (through 2015)
+to 92-94 days (from 2020). If the borrower catches up during the wait,
+`DefaultDate` stays empty.
+
+If they do not, Bondora marks the loan in default and starts debt
+collection: the process that pursues the unpaid amount. `DefaultDate`
+is that day. It is not a write-off, and it is not proof the investor
+lost the money. The borrower can still pay later. `Status` can then
+move to `Repaid` or back to `Current`, and the date stays.
+
 ## The two fields disagree
 
-`Status` is the state on 23 May 2024. `DefaultDate` is the day Bondora
-started collection. The date stays if the borrower later catches up.
+`Status` is the state on 23 May 2024. `DefaultDate` is the day debt
+collection started. The date stays if the borrower later catches up.
 124,128 loans have a date. None of those dates fall before `LoanDate`
 or after the snapshot.
 
@@ -37,13 +51,13 @@ first 72 months. The longest gap in the file is 137 months.
 
 A rate of "ever had a `DefaultDate`" gives a 2016 vintage years that a
 2022 vintage has not had. Note 2 already left 2023 and 2024 out for
-that reason. Inside 2009–2022 the same gap remains, smaller.
+that reason. Inside 2009-2022 the same gap remains, smaller.
 
 ## The platform's own wait got longer
 
 `DebtOccuredOn` is the day the debt was recorded. On the 118,094 loans
 that have both dates, the median wait until `DefaultDate` is 62 days
-through 2015, 76 days in 2016, and 92–94 days from 2020 on. 6,034 dated
+through 2015, 76 days in 2016, and 92-94 days from 2020 on. 6,034 dated
 loans have no `DebtOccuredOn`. 0.3% of the gaps that exist are
 negative, so a few rows are messy. The yearly median is the stable
 part: the day this file calls default is not the same distance from
@@ -61,8 +75,8 @@ view for the closing note.
 
 **Collection started within 12 months of `LoanDate`.**
 
-On the 271,955 loans originated in 2009–2022 — every one of them
-watched at least 12 months — that is 57,625 loans, **21.2%**. Of those,
+On the 271,955 loans originated in 2009-2022 - every one of them
+watched at least 12 months - that is 57,625 loans, **21.2%**. Of those,
 38,309 are still `Late`, 19,256 later `Repaid`, and 60 are `Current`.
 
 | Year | % `DefaultDate` ever | % within 12 months |
@@ -77,12 +91,12 @@ watched at least 12 months — that is 57,625 loans, **21.2%**. Of those,
 | 2021 | 30.7 | 10.3 |
 | 2022 | 25.2 | 13.4 |
 
-![Default mark by origination year, 2009–2022](figures/default_rate_by_year.png)
+![Default mark by origination year, 2009-2022](figures/default_rate_by_year.png)
 
 The blue line is what the country and association notes will use,
 inside one origination year. The red line sits higher on older
 vintages because defaults after month 12 have had time to arrive.
-2009–2013 are on the figure and are small vintages. 2023 and 2024 stay
+2009-2013 are on the figure and are small vintages. 2023 and 2024 stay
 off it. In 2023 only 33,587 of 80,923 loans have been watched 12
 months; on that slice the 12-month rate is 13.8%, close to 2022, while
 the crude rate on all of 2023 is 9.5%.

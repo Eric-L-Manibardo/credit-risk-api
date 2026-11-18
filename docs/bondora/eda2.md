@@ -52,11 +52,11 @@ loan has been watched for less than a year (median `Current` loan: 2
 months). In 2023, 58.5 % are under 12 months. The drop in crude default
 in those two years is the clock, not a better book.
 
-**2009–2022 have had at least 12 months.** An early default has had
+**2009-2022 have had at least 12 months.** An early default has had
 time to show up. They are not a finished book: in 2022, 90 % are still
 before the signed maturity and 35 % are `Current`. A rate of "ever
 defaulted by the photo" still gives old vintages more months in which
-to fail. Later comparisons use 2009–2022. A 12-month default can
+to fail. Later comparisons use 2009-2022. A 12-month default can
 include 2022. A "the loan ended badly" label cannot: 2022 has not ended.
 
 The default label is [note 3](eda3.md). `DefaultDate` is the day

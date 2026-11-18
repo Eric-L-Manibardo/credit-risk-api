@@ -14,7 +14,7 @@ serve this model.
 
 ## Bondora
 
-Euro consumer loans, 2009–2024. Read this before assuming the German
+Euro consumer loans, 2009-2024. Read this before assuming the German
 Credit pipeline transfers.
 
 - [1. What a row is](bondora/eda1.md)

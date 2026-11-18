@@ -2,7 +2,7 @@
 
 Two books live in this repo. The German Credit API is finished and stays
 the served model. The current work is the Bondora loan book: euros,
-2009–2024, read before any schema or second model.
+2009-2024, read before any schema or second model.
 
 | Book | What it is | Status |
 |------|------------|--------|
@@ -13,7 +13,7 @@ Public notes: [docs/README.md](docs/README.md).
 
 ---
 
-## German Credit — finished
+## German Credit - finished
 
 The pipeline below is the proof of concept. It is not the template for
 Bondora. Data, features, CatBoost, SHAP, FastAPI, Docker, and CI are closed.
@@ -124,7 +124,7 @@ gitignored. PRs run Ruff, mypy, pytest, and `docker build`
 
 ---
 
-## Bondora — in progress
+## Bondora - in progress
 
 **Goal:** Decide the population, the label, and the origination columns
 in writing before any table or model. The German Credit pipeline is not
@@ -132,18 +132,18 @@ copied onto this file.
 
 **Deliverable so far:** Public EDA notes under `docs/bondora/`. The
 working mark is collection started within 12 months of `LoanDate`, on
-vintages 2009–2022. It is not the model target.
+vintages 2009-2022. It is not the model target.
 
 | Step | Note | Status |
 |------|------|--------|
 | 1. What a row is | [docs/bondora/eda1.md](docs/bondora/eda1.md) | Done |
 | 2. The clock stops | [docs/bondora/eda2.md](docs/bondora/eda2.md) | Done |
 | 3. `DefaultDate` is not `Status` | [docs/bondora/eda3.md](docs/bondora/eda3.md) | Done |
-| 4. Country inside the same year | — | Next |
-| 5. Column inventory | — | Open |
-| 6. Associations that keep their sign | — | Open |
-| 7. Columns that are the outcome | — | Open |
-| 8. Closing note: population, label, columns | — | Open |
+| 4. Country inside the same year | - | Next |
+| 5. Column inventory | - | Open |
+| 6. Associations that keep their sign | - | Open |
+| 7. Columns that are the outcome | - | Open |
+| 8. Closing note: population, label, columns | - | Open |
 
 Download, local only (the CSV is gitignored):
 
