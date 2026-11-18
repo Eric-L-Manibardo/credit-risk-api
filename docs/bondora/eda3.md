@@ -106,3 +106,4 @@ no `DefaultDate`. It is not this mark.
 
 The 12-month flag keeps the next charts on one definition. The label a
 model would defend is the closing note, with this table in front of it.
+Next: [country inside one year](eda4.md).

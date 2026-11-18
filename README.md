@@ -58,6 +58,7 @@ Separate extract, not a second pass of the same pipeline. Notes so far:
 - [1. What a row is](docs/bondora/eda1.md)
 - [2. The clock stops](docs/bondora/eda2.md) - 2023 and 2024 are too young to compare
 - [3. DefaultDate is not Status](docs/bondora/eda3.md) - working mark is collection within 12 months of `LoanDate`
+- [4. Country is not the calendar](docs/bondora/eda4.md) - Spain stays above Estonia inside one year; Finland's rank changes
 
 The CSV stays local (`data/raw/LoanData.csv`, gitignored):
 
@@ -225,6 +226,7 @@ so it does not veto the winner. Full manifest:
 - Bondora 1, what a row is: [docs/bondora/eda1.md](docs/bondora/eda1.md)
 - Bondora 2, the clock: [docs/bondora/eda2.md](docs/bondora/eda2.md)
 - Bondora 3, DefaultDate is not Status: [docs/bondora/eda3.md](docs/bondora/eda3.md)
+- Bondora 4, country is not the calendar: [docs/bondora/eda4.md](docs/bondora/eda4.md)
 
 ## License
 

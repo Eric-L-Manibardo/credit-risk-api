@@ -139,8 +139,8 @@ vintages 2009-2022. It is not the model target.
 | 1. What a row is | [docs/bondora/eda1.md](docs/bondora/eda1.md) | Done |
 | 2. The clock stops | [docs/bondora/eda2.md](docs/bondora/eda2.md) | Done |
 | 3. `DefaultDate` is not `Status` | [docs/bondora/eda3.md](docs/bondora/eda3.md) | Done |
-| 4. Country inside the same year | - | Next |
-| 5. Column inventory | - | Open |
+| 4. Country inside the same year | [docs/bondora/eda4.md](docs/bondora/eda4.md) | Done |
+| 5. Column inventory | - | Next |
 | 6. Associations that keep their sign | - | Open |
 | 7. Columns that are the outcome | - | Open |
 | 8. Closing note: population, label, columns | - | Open |

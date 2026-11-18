@@ -20,3 +20,4 @@ Credit pipeline transfers.
 - [1. What a row is](bondora/eda1.md)
 - [2. The clock stops](bondora/eda2.md)
 - [3. DefaultDate is not Status](bondora/eda3.md)
+- [4. Country is not the calendar](bondora/eda4.md)
